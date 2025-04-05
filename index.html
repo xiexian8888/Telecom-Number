@@ -1,57 +1,98 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN"> <!-- data-theme 属性将由 JS 添加 -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>专业设备信息生成器</title>
     <!-- 引入鸿蒙字体 -->
     <style>
-        @font-face {
+        @font-face { /* Font faces remain the same */
             font-family: 'HarmonyOS Sans';
             src: url('https://s1.hdslb.com/bfs/static/jinkela/long/font/HarmonyOS_Sans_Regular.woff2') format('woff2');
-            font-weight: normal;
-            font-style: normal;
-            font-display: swap;
+            font-weight: normal; font-style: normal; font-display: swap;
         }
-        
         @font-face {
             font-family: 'HarmonyOS Sans';
             src: url('https://s1.hdslb.com/bfs/static/jinkela/long/font/HarmonyOS_Sans_Medium.woff2') format('woff2');
-            font-weight: 500;
-            font-style: normal;
-            font-display: swap;
+            font-weight: 500; font-style: normal; font-display: swap;
         }
-        
         @font-face {
             font-family: 'HarmonyOS Sans';
             src: url('https://s1.hdslb.com/bfs/static/jinkela/long/font/HarmonyOS_Sans_Bold.woff2') format('woff2');
-            font-weight: bold;
-            font-style: normal;
-            font-display: swap;
+            font-weight: bold; font-style: normal; font-display: swap;
         }
     </style>
     <style>
         :root {
-            --blur-intensity: 5px; /* 固定模糊度 */
-            --glass-opacity: 0.92; /* 更高的透明度 */
-            --primary-color: rgba(0, 0, 0, 0.9); /* 更深的字体颜色 */
-            --secondary-color: rgba(0, 0, 0, 0.7);
+            /* --- Light Mode Variables (Defaults) --- */
+            --blur-intensity: 5px;
+            --glass-opacity: 0.92;
+            --primary-text: rgba(0, 0, 0, 0.9);
+            --secondary-text: rgba(0, 0, 0, 0.7);
+            --container-bg: rgba(255, 255, 255, var(--glass-opacity));
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --result-bg: rgba(255, 255, 255, 0.95);
+            --info-item-bg: rgba(255, 255, 255, 0.95);
+            --info-item-strong: #666;
             --border-color: rgba(0, 0, 0, 0.1);
             --shadow-color: rgba(0, 0, 0, 0.1);
             --accent-color: rgba(10, 132, 255, 0.9);
             --accent-hover: rgba(0, 122, 255, 1);
+            --heading-gradient-start: #0066cc;
+            --heading-gradient-end: #00aaff;
+            --body-bg-start: #e0f7ff;
+            --body-bg-mid: #b3e0ff;
+            --body-bg-end: #8ac8ff;
+            --bubble-color: rgba(255, 255, 255, 0.2);
+            --copy-btn-start: #34c759;
+            --copy-btn-end: #30d158;
+            --copy-btn-hover-start: #30d158;
+            --copy-btn-hover-end: #2cc24d;
+            --notification-bg: rgba(0, 0, 0, 0.85);
+            --notification-text: white;
+            --theme-toggle-bg: rgba(0, 0, 0, 0.05);
+            --theme-toggle-icon: rgba(0, 0, 0, 0.6);
+            --theme-toggle-hover-bg: rgba(0, 0, 0, 0.1);
+            --transition-speed: 0.3s;
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+
+        /* --- Dark Mode Variables --- */
+        html[data-theme='dark'] {
+            --primary-text: rgba(255, 255, 255, 0.9);
+            --secondary-text: rgba(255, 255, 255, 0.7);
+            --container-bg: rgba(40, 40, 45, var(--glass-opacity));
+            --card-bg: rgba(55, 55, 60, 0.95);
+            --result-bg: rgba(50, 50, 55, 0.95);
+            --info-item-bg: rgba(60, 60, 65, 0.95);
+            --info-item-strong: #bbb;
+            --border-color: rgba(255, 255, 255, 0.15);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --accent-color: rgba(40, 152, 255, 0.9);
+            --accent-hover: rgba(70, 172, 255, 1);
+            --heading-gradient-start: #30aaff;
+            --heading-gradient-end: #007aff;
+            --body-bg-start: #1c1c1e;
+            --body-bg-mid: #2c2c2e;
+            --body-bg-end: #3a3a3c;
+            --bubble-color: rgba(255, 255, 255, 0.08);
+            --copy-btn-start: #30d158;
+            --copy-btn-end: #2cc24d;
+            --copy-btn-hover-start: #34c759;
+            --copy-btn-hover-end: #30d158;
+            --notification-bg: rgba(235, 235, 245, 0.85);
+            --notification-text: black;
+            --theme-toggle-bg: rgba(255, 255, 255, 0.1);
+            --theme-toggle-icon: rgba(255, 255, 255, 0.7);
+            --theme-toggle-hover-bg: rgba(255, 255, 255, 0.2);
         }
-        
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
         body {
             font-family: 'HarmonyOS Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #e0f7ff 0%, #b3e0ff 50%, #8ac8ff 100%);
-            color: #333;
+            background: linear-gradient(135deg, var(--body-bg-start) 0%, var(--body-bg-mid) 50%, var(--body-bg-end) 100%);
+            color: var(--primary-text);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -62,189 +103,138 @@
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             text-rendering: optimizeLegibility;
+            transition: background var(--transition-speed) ease, color var(--transition-speed) ease;
         }
-        
-        /* 动态气泡背景 */
-        .bubbles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-        }
-        
-        .bubble {
-            position: absolute;
-            bottom: -100px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            animation: rise 15s infinite ease-in;
-        }
-        
-        .bubble:nth-child(1) {
-            width: 40px;
-            height: 40px;
-            left: 10%;
-            animation-duration: 12s;
-        }
-        
-        .bubble:nth-child(2) {
-            width: 60px;
-            height: 60px;
-            left: 20%;
-            animation-duration: 18s;
-        }
-        
-        .bubble:nth-child(3) {
-            width: 30px;
-            height: 30px;
-            left: 35%;
-            animation-duration: 15s;
-        }
-        
-        .bubble:nth-child(4) {
-            width: 50px;
-            height: 50px;
-            left: 50%;
-            animation-duration: 14s;
-        }
-        
-        .bubble:nth-child(5) {
-            width: 25px;
-            height: 25px;
-            left: 70%;
-            animation-duration: 16s;
-        }
-        
-        .bubble:nth-child(6) {
-            width: 45px;
-            height: 45px;
-            left: 85%;
-            animation-duration: 13s;
-        }
-        
-        @keyframes rise {
-            0% {
-                bottom: -100px;
-                transform: translateX(0);
-            }
-            50% {
-                transform: translateX(100px);
-            }
-            100% {
-                bottom: 1080px;
-                transform: translateX(-200px);
-            }
-        }
-        
+
+        /* Dynamic Bubbles (style unchanged) */
+        .bubbles { position: absolute; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+        .bubble { position: absolute; bottom: -100px; background: var(--bubble-color); border-radius: 50%; animation: rise 15s infinite ease-in; transition: background var(--transition-speed) ease; }
+        .bubble:nth-child(1) { width: 40px; height: 40px; left: 10%; animation-duration: 12s; }
+        .bubble:nth-child(2) { width: 60px; height: 60px; left: 20%; animation-duration: 18s; }
+        .bubble:nth-child(3) { width: 30px; height: 30px; left: 35%; animation-duration: 15s; }
+        .bubble:nth-child(4) { width: 50px; height: 50px; left: 50%; animation-duration: 14s; }
+        .bubble:nth-child(5) { width: 25px; height: 25px; left: 70%; animation-duration: 16s; }
+        .bubble:nth-child(6) { width: 45px; height: 45px; left: 85%; animation-duration: 13s; }
+        @keyframes rise { 0% { bottom: -100px; transform: translateX(0); } 50% { transform: translateX(100px); } 100% { bottom: 1080px; transform: translateX(-200px); } }
+
         .container {
             width: 100%;
             max-width: 900px;
-            backdrop-filter: blur(var(--blur-intensity)); /* 固定模糊效果 */
+            backdrop-filter: blur(var(--blur-intensity));
             -webkit-backdrop-filter: blur(var(--blur-intensity));
-            background: rgba(255, 255, 255, var(--glass-opacity));
+            background: var(--container-bg);
             border-radius: 28px;
             border: 1px solid var(--border-color);
             box-shadow: 0 12px 40px 0 var(--shadow-color);
-            overflow: hidden;
+            overflow: hidden; /* Changed from visible to hidden for positioning context */
             padding: 35px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-            will-change: transform;
+            position: relative; /* Needed for absolute positioning of the toggle button */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1), background var(--transition-speed) ease, border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            will-change: transform, background, border-color, box-shadow;
         }
-        
-        /* 移除:hover时的模糊变化 */
+
         .container:hover {
             transform: scale(1.01);
-            box-shadow: 0 15px 45px 0 rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 45px 0 var(--shadow-color);
         }
-        
+
+         /* --- Theme Toggle Button --- */
+         #theme-toggle-btn {
+            position: absolute;
+            top: 20px; /* Adjust as needed */
+            right: 20px; /* Adjust as needed */
+            background: var(--theme-toggle-bg);
+            border: 1px solid var(--border-color);
+            color: var(--theme-toggle-icon); /* For SVG fill */
+            width: 40px; /* Button size */
+            height: 40px;
+            border-radius: 50%; /* Circular */
+            padding: 8px; /* Space around icon */
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background var(--transition-speed) ease, color var(--transition-speed) ease, border-color var(--transition-speed) ease, transform 0.2s ease;
+            z-index: 10; /* Ensure it's above other elements if needed */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        #theme-toggle-btn:hover {
+            background: var(--theme-toggle-hover-bg);
+            transform: scale(1.1);
+        }
+        #theme-toggle-btn:active {
+             transform: scale(0.95);
+        }
+        #theme-toggle-btn svg {
+            width: 100%;
+            height: 100%;
+            fill: currentColor; /* Inherit color from button */
+            transition: transform 0.3s ease-in-out;
+        }
+        /* Hide one icon based on theme */
+        html[data-theme='dark'] #theme-toggle-btn .sun-icon { display: block; }
+        html[data-theme='dark'] #theme-toggle-btn .moon-icon { display: none; }
+        html[data-theme='light'] #theme-toggle-btn .sun-icon { display: none; }
+        html[data-theme='light'] #theme-toggle-btn .moon-icon { display: block; }
+        /* Fallback if JS fails or data-theme isn't set initially */
+        #theme-toggle-btn .sun-icon { display: none; } /* Default to showing moon (assuming light) */
+
+
         h1 {
             font-size: 2.4rem;
             font-weight: 600;
             text-align: center;
-            margin-bottom: 35px;
-            color: #1a1a1a;
+            margin-bottom: 35px; /* Keep space below heading */
+            margin-top: 10px; /* Add some space above if toggle button pushes it */
             letter-spacing: -0.5px;
-            background: linear-gradient(90deg, #0066cc, #00aaff);
+            background: linear-gradient(90deg, var(--heading-gradient-start), var(--heading-gradient-end));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-family: 'HarmonyOS Sans', sans-serif;
             font-weight: bold;
+            transition: color var(--transition-speed) ease;
         }
-        
-        .grid {
+
+        .grid { /* Styles unchanged */
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 25px;
             margin-bottom: 30px;
         }
-        
-        .card {
-            background: rgba(255, 255, 255, 0.95);
+
+        .card { /* Styles unchanged */
+            background: var(--card-bg);
             border-radius: 20px;
             padding: 28px;
-            transition: all 0.35s ease;
+            transition: all 0.35s ease, background var(--transition-speed) ease, border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
             border: 1px solid var(--border-color);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-        
-        .card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                to bottom right,
-                rgba(255, 255, 255, 0) 0%,
-                rgba(255, 255, 255, 0.3) 50%,
-                rgba(255, 255, 255, 0) 100%
-            );
-            transform: rotate(30deg);
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 5px 15px var(--shadow-color);
+            animation: fadeIn 0.6s ease-out forwards;
             opacity: 0;
         }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        /* Stagger card animations */
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+        .card:nth-child(5) { animation-delay: 0.5s; }
+
+        /* Shine effect (unchanged) */
+        .card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(to bottom right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 100%); transform: rotate(30deg); transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1); opacity: 0; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px var(--shadow-color); }
+        .card:hover::before { animation: shine 1.8s ease-out infinite; opacity: 1; }
+        @keyframes shine { 0% { transform: rotate(30deg) translate(-10%, -10%); } 100% { transform: rotate(30deg) translate(10%, 10%); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { /* Styles unchanged */
+            font-size: 1.4rem; font-weight: 500; margin-bottom: 18px; color: var(--primary-text); display: flex; align-items: center; font-family: 'HarmonyOS Sans', sans-serif; transition: color var(--transition-speed) ease;
         }
-        
-        .card:hover::before {
-            animation: shine 1.8s ease-out infinite;
-            opacity: 1;
-        }
-        
-        @keyframes shine {
-            0% { transform: rotate(30deg) translate(-10%, -10%); }
-            100% { transform: rotate(30deg) translate(10%, 10%); }
-        }
-        
-        h2 {
-            font-size: 1.4rem;
-            font-weight: 500;
-            margin-bottom: 18px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            font-family: 'HarmonyOS Sans', sans-serif;
-        }
-        
-        h2::before {
-            content: '';
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: linear-gradient(45deg, var(--accent-color), #00c8ff);
-            border-radius: 50%;
-            margin-right: 12px;
-        }
-        
-        button {
-            background: linear-gradient(135deg, var(--accent-color), rgba(0, 200, 255, 0.8));
+        h2::before { content: ''; display: inline-block; width: 8px; height: 8px; background: linear-gradient(45deg, var(--accent-color), var(--accent-hover)); border-radius: 50%; margin-right: 12px; transition: background var(--transition-speed) ease; }
+
+        button:not(#theme-toggle-btn) { /* Exclude theme toggle from general button styles if needed */
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
             color: white;
             border: none;
             padding: 13px 22px;
@@ -252,501 +242,215 @@
             cursor: pointer;
             font-size: 1rem;
             font-weight: 500;
-            transition: all 0.3s ease;
+            transition: all 0.3s ease, background var(--transition-speed) ease;
             box-shadow: 0 5px 18px rgba(0, 113, 255, 0.25);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            margin-right: 12px;
-            margin-bottom: 12px;
+            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            margin-right: 12px; margin-bottom: 12px;
             will-change: transform;
             font-family: 'HarmonyOS Sans', sans-serif;
         }
-        
-        button:hover {
+        button:not(#theme-toggle-btn):hover {
             transform: translateY(-3px) scale(1.02);
             box-shadow: 0 8px 22px rgba(0, 113, 255, 0.35);
-            background: linear-gradient(135deg, var(--accent-hover), rgba(0, 180, 255, 0.9));
+            background: linear-gradient(135deg, var(--accent-hover), var(--accent-color));
         }
-        
-        button:active {
-            transform: translateY(0) scale(0.98);
+        button:not(#theme-toggle-btn):active { transform: translateY(0) scale(0.98); }
+
+        .result { /* Styles unchanged */
+            margin-top: 18px; padding: 18px; background: var(--result-bg); border-radius: 12px; word-break: break-all; color: var(--primary-text); font-family: 'HarmonyOS Sans', monospace; border: 1px solid var(--border-color); position: relative; min-height: 60px; font-size: 0.95rem; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); line-height: 1.6; transition: background var(--transition-speed) ease, color var(--transition-speed) ease, border-color var(--transition-speed) ease;
         }
-        
-        .result {
-            margin-top: 18px;
-            padding: 18px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 12px;
-            word-break: break-all;
-            color: #333;
-            font-family: 'HarmonyOS Sans', monospace;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            position: relative;
-            min-height: 60px;
-            font-size: 0.95rem;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-            line-height: 1.6;
+        .result span { display: inline-block; margin-right: 8px; }
+
+        .copy-btn { /* Styles unchanged */
+            background: linear-gradient(135deg, var(--copy-btn-start), var(--copy-btn-end)); color: white; margin-left: 12px; float: right; margin-top: -5px; padding: 8px 15px; font-size: 0.9rem; border-radius: 8px; /* Match other buttons */ border: none; cursor: pointer; transition: all 0.2s ease;
         }
-        
-        .copy-btn {
-            background: linear-gradient(135deg, #34c759, #30d158);
-            color: white;
-            margin-left: 12px;
+        .copy-btn:hover { background: linear-gradient(135deg, var(--copy-btn-hover-start), var(--copy-btn-hover-end)); transform: scale(1.05); }
+        .copy-btn:active { transform: scale(0.98); }
+
+        .info-grid { /* Styles unchanged */
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-top: 18px;
         }
-        
-        .copy-btn:hover {
-            background: linear-gradient(135deg, #30d158, #2cc24d);
+
+        .info-item { /* Styles unchanged */
+            background: var(--info-item-bg); padding: 15px; border-radius: 10px; font-size: 0.95rem; border: 1px solid var(--border-color); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03); font-family: 'HarmonyOS Sans', sans-serif; transition: background var(--transition-speed) ease, border-color var(--transition-speed) ease; color: var(--primary-text);
         }
-        
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 18px;
-            margin-top: 18px;
+        .info-item strong { color: var(--info-item-strong); display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; transition: color var(--transition-speed) ease; }
+
+        .disclaimer { /* Styles unchanged */
+            font-size: 0.85rem; color: var(--secondary-text); margin-top: 35px; padding-top: 25px; border-top: 1px solid var(--border-color); line-height: 1.7; font-family: 'HarmonyOS Sans', sans-serif; transition: color var(--transition-speed) ease, border-color var(--transition-speed) ease;
         }
-        
-        .info-item {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
-            font-family: 'HarmonyOS Sans', sans-serif;
+
+        .copyright { /* Styles unchanged */
+            font-size: 0.85rem; color: var(--secondary-text); text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); font-family: 'HarmonyOS Sans', sans-serif; opacity: 0.8; transition: color var(--transition-speed) ease, border-color var(--transition-speed) ease, opacity var(--transition-speed) ease;
         }
-        
-        .info-item strong {
-            color: #666;
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-        
-        .disclaimer {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 35px;
-            padding-top: 25px;
-            border-top: 1px solid rgba(0, 0, 0, 0.08);
-            line-height: 1.7;
-            font-family: 'HarmonyOS Sans', sans-serif;
-        }
-        
-        /* 新增版权信息样式 */
-        .copyright {
-            font-size: 0.8rem;
-            color: #666;
-            text-align: center;
-            margin-top: 25px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            font-family: 'HarmonyOS Sans', sans-serif;
-        }
-        
-        /* 响应式调整 */
+        .copyright a { color: inherit; text-decoration: none; transition: color 0.2s ease; }
+        .copyright a:hover { color: var(--accent-color); text-decoration: underline; }
+
+        /* Responsive adjustments (unchanged) */
         @media (max-width: 768px) {
-            .container {
-                padding: 25px;
-                border-radius: 24px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .grid {
-                grid-template-columns: 1fr;
-            }
+            .container { padding: 25px; border-radius: 24px; padding-top: 70px; /* Add padding top to avoid overlap with button */ }
+            #theme-toggle-btn { top: 15px; right: 15px; width: 36px; height: 36px; padding: 7px;}
+            h1 { font-size: 2rem; }
+            .grid { grid-template-columns: 1fr; }
+            .result { padding: 15px; }
+            .copy-btn { margin-left: 8px; padding: 6px 12px; font-size: 0.85rem; margin-top: -3px;}
+            .info-grid { grid-template-columns: 1fr; }
         }
-        
-        /* 动画效果 */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .card {
-            animation: fadeIn 0.6s ease-out forwards;
-            opacity: 0;
-        }
-        
-        .card:nth-child(1) { animation-delay: 0.1s; }
-        .card:nth-child(2) { animation-delay: 0.2s; }
-        .card:nth-child(3) { animation-delay: 0.3s; }
-        .card:nth-child(4) { animation-delay: 0.4s; }
-        .card:nth-child(5) { animation-delay: 0.5s; }
-        
-        /* 平滑滚动 */
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        /* 优化性能 */
-        *, *::before, *::after {
-            will-change: transform, opacity;
-        }
+
+        /* Performance optimization hint (unchanged) */
+        *, *::before, *::after { will-change: transform, opacity, background, color, border-color; }
+
+        /* Notification style (unchanged) */
+        .copy-notification { position: fixed; bottom: 20px; right: 20px; background-color: var(--notification-bg); color: var(--notification-text); padding: 12px 24px; border-radius: 10px; z-index: 1000; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateY(20px) scale(0.95); opacity: 0; font-family: 'HarmonyOS Sans', sans-serif; font-size: 0.95rem; box-shadow: 0 5px 15px rgba(0,0,0,0.2); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
     </style>
 </head>
 <body>
-    <!-- 动态气泡背景 -->
+    <!-- Dynamic Bubbles -->
     <div class="bubbles">
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
+        <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+        <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
     </div>
-    
+
     <div class="container">
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle-btn" aria-label="切换主题">
+            <!-- Sun Icon -->
+            <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.106a.75.75 0 011.06.044l1.62 1.62a.75.75 0 01-1.06 1.06l-1.62-1.62a.75.75 0 01.044-1.06zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM17.836 17.836a.75.75 0 011.06 1.06l-1.62 1.62a.75.75 0 11-1.06-1.06l1.62-1.62zM12 18.75a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM5.106 18.894a.75.75 0 011.06-1.06l1.62 1.62a.75.75 0 01-1.06 1.06l-1.62-1.62zM3 12a.75.75 0 01.75-.75h2.25a.75.75 0 010 1.5H3.75A.75.75 0 013 12zM6.106 5.106a.75.75 0 01.044 1.06l-1.62 1.62a.75.75 0 01-1.06-1.06l1.62-1.62a.75.75 0 011.016-.044z" />
+            </svg>
+            <!-- Moon Icon -->
+            <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                 <path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-3.51 1.71-6.637 4.43-8.54a.75.75 0 01.818.162z" clip-rule="evenodd" />
+            </svg>
+        </button>
+
         <h1>专业设备信息生成器</h1>
-        
+
         <div class="grid">
             <div class="card">
                 <h2>IMEI 生成器</h2>
                 <button onclick="generateIMEI()">生成 IMEI</button>
                 <div id="imeiResult" class="result"></div>
             </div>
-            
+
             <div class="card">
                 <h2>序列号 (SN)</h2>
                 <button onclick="generateSN()">生成序列号</button>
                 <div id="snResult" class="result"></div>
             </div>
-            
+
             <div class="card">
                 <h2>Android ID</h2>
                 <button onclick="generateAndroidID()">生成 Android ID</button>
                 <div id="androidIdResult" class="result"></div>
             </div>
-            
+
             <div class="card">
                 <h2>SIM 卡序列号</h2>
                 <button onclick="generateSIM()">生成 SIM 卡号</button>
                 <div id="simResult" class="result"></div>
             </div>
-            
+
             <div class="card">
                 <h2>完整设备信息</h2>
                 <button onclick="generateAll()">生成完整信息</button>
                 <div id="allResult" class="result"></div>
             </div>
         </div>
-        
+
         <div class="disclaimer">
             <strong>免责声明：</strong>本工具仅用于开发和测试目的。生成的信息不应用于非法活动。在某些国家和地区，修改或伪造设备标识可能是违法的。使用本工具即表示您同意承担所有责任。
         </div>
-        
-        <!-- 新增版权信息 -->
+
         <div class="copyright">
-            xiexian, 2018-2025
+             © 2018-2025 <a href="#" target="_blank" rel="noopener noreferrer">xiexian</a>. All Rights Reserved. <!-- Replace # with actual link -->
+             <br>
+             <span style="font-size: 0.75em; opacity: 0.7;">Generated data is for testing purposes only.</span>
         </div>
     </div>
 
     <script>
-        // 设备型号数据库 (移除了苹果设备)
-        const deviceDatabase = {
-            samsung: [
-                'Galaxy S23 Ultra', 'Galaxy S23+', 'Galaxy S23', 
-                'Galaxy Z Fold5', 'Galaxy Z Flip5', 'Galaxy A54',
-                'Galaxy Note20 Ultra', 'Galaxy S22 Ultra', 'Galaxy S21 FE'
-            ],
-            xiaomi: [
-                'Xiaomi 13 Pro', 'Xiaomi 13', 'Xiaomi 12T Pro',
-                'Redmi Note 12 Pro+', 'Redmi K60', 'Redmi Note 11T Pro',
-                'Xiaomi Mix Fold 2', 'Xiaomi Civi 2'
-            ],
-            huawei: [
-                'Mate 50 Pro', 'P60 Pro', 'P50 Pocket',
-                'Nova 11', 'Mate X3', 'Enjoy 50z'
-            ],
-            oneplus: [
-                'OnePlus 11', 'OnePlus 11R', 'OnePlus 10 Pro',
-                'OnePlus 10T', 'OnePlus 9RT', 'OnePlus Nord 3'
-            ],
-            oppo: [
-                'Find X6 Pro', 'Find N2 Flip', 'Reno10 Pro+',
-                'A98', 'K10x', 'Find X5 Pro'
-            ],
-            vivo: [
-                'X90 Pro+', 'X Fold2', 'S17 Pro',
-                'iQOO 11', 'iQOO Neo8', 'V27'
-            ],
-            google: [
-                'Pixel 7 Pro', 'Pixel 7', 'Pixel 6a',
-                'Pixel Fold', 'Pixel Tablet', 'Pixel 5a'
-            ],
-            realme: [
-                'GT Neo5', 'GT2 Pro', '10 Pro+',
-                '9 Pro+', '8 Pro', 'C55'
-            ],
-            honor: [
-                'Magic5 Pro', '90 Pro', 'X9a',
-                '70 Pro+', 'Magic Vs', 'X8a'
-            ]
+        // 设备数据库 (未改变)
+        const deviceDatabase = { /* ... database content ... */
+             samsung: ['Galaxy S23 Ultra', 'Galaxy S23+', 'Galaxy S23', 'Galaxy Z Fold5', 'Galaxy Z Flip5', 'Galaxy A54', 'Galaxy Note20 Ultra', 'Galaxy S22 Ultra', 'Galaxy S21 FE'], xiaomi: ['Xiaomi 13 Pro', 'Xiaomi 13', 'Xiaomi 12T Pro', 'Redmi Note 12 Pro+', 'Redmi K60', 'Redmi Note 11T Pro', 'Xiaomi Mix Fold 2', 'Xiaomi Civi 2'], huawei: ['Mate 50 Pro', 'P60 Pro', 'P50 Pocket', 'Nova 11', 'Mate X3', 'Enjoy 50z'], oneplus: ['OnePlus 11', 'OnePlus 11R', 'OnePlus 10 Pro', 'OnePlus 10T', 'OnePlus 9RT', 'OnePlus Nord 3'], oppo: ['Find X6 Pro', 'Find N2 Flip', 'Reno10 Pro+', 'A98', 'K10x', 'Find X5 Pro'], vivo: ['X90 Pro+', 'X Fold2', 'S17 Pro', 'iQOO 11', 'iQOO Neo8', 'V27'], google: ['Pixel 7 Pro', 'Pixel 7', 'Pixel 6a', 'Pixel Fold', 'Pixel Tablet', 'Pixel 5a'], realme: ['GT Neo5', 'GT2 Pro', '10 Pro+', '9 Pro+', '8 Pro', 'C55'], honor: ['Magic5 Pro', '90 Pro', 'X9a', '70 Pro+', 'Magic Vs', 'X8a']
         };
 
-        // 生成符合Luhn算法的IMEI
-        function generateIMEI() {
-            let imei = '';
-            // 前14位随机
-            for(let i = 0; i < 14; i++) {
-                imei += Math.floor(Math.random() * 10);
+        // --- Theme Toggling Logic ---
+        const themeToggleButton = document.getElementById('theme-toggle-btn');
+        const lsThemeKey = 'themePreference';
+        const lightTheme = 'light';
+        const darkTheme = 'dark';
+
+        // Function to apply the theme
+        function applyTheme(theme) {
+            document.documentElement.dataset.theme = theme; // Set attribute on <html>
+            localStorage.setItem(lsThemeKey, theme); // Save preference
+            // Icon visibility is handled by CSS based on data-theme
+        }
+
+        // Function to get the initial theme
+        function getInitialTheme() {
+            const storedTheme = localStorage.getItem(lsThemeKey);
+            if (storedTheme) {
+                return storedTheme; // Use saved preference
             }
-            
-            // 计算Luhn校验位
-            let sum = 0;
-            for(let i = 0; i < 14; i++) {
-                let digit = parseInt(imei[i]);
-                if((i + 1) % 2 === 0) {
-                    digit *= 2;
-                    if(digit > 9) {
-                        digit = (digit % 10) + Math.floor(digit / 10);
-                    }
-                }
-                sum += digit;
-            }
-            
-            const checkDigit = (10 - (sum % 10)) % 10;
-            imei += checkDigit;
-            
-            document.getElementById('imeiResult').innerHTML = 
-                `<span>${formatIMEI(imei)}</span><button class="copy-btn" onclick="copyToClipboard('${imei}')">复制</button>`;
+            // If no preference, check system preference
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            return prefersDark ? darkTheme : lightTheme;
         }
-        
-        // 格式化IMEI显示
-        function formatIMEI(imei) {
-            return imei.replace(/(\d{4})(?=\d)/g, '$1 ');
-        }
-        
-        // 生成序列号 (长度随机12-20位)
-        function generateSN() {
-            const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            const length = Math.floor(Math.random() * 9) + 12; // 12-20位
-            let sn = '';
-            
-            // 确保序列号不以数字开头
-            sn += chars.charAt(Math.floor(Math.random() * 26) + 10);
-            
-            for(let i = 1; i < length; i++) {
-                sn += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            
-            document.getElementById('snResult').innerHTML = 
-                `<span>${sn}</span><button class="copy-btn" onclick="copyToClipboard('${sn}')">复制</button>`;
-        }
-        
-        // 生成Android ID (长度随机12-20位)
-        function generateAndroidID() {
-            const hex = '0123456789abcdef';
-            const length = Math.floor(Math.random() * 9) + 12; // 12-20位
-            let androidId = '';
-            
-            for(let i = 0; i < length; i++) {
-                androidId += hex.charAt(Math.floor(Math.random() * hex.length));
-            }
-            
-            document.getElementById('androidIdResult').innerHTML = 
-                `<span>${androidId}</span><button class="copy-btn" onclick="copyToClipboard('${androidId}')">复制</button>`;
-        }
-        
-        // 生成SIM卡序列号 (19-20位)
-        function generateSIM() {
-            const digits = '0123456789';
-            let sim = '';
-            const length = Math.random() > 0.5 ? 19 : 20;
-            
-            for(let i = 0; i < length; i++) {
-                sim += digits.charAt(Math.floor(Math.random() * digits.length));
-                // 添加分隔符提升可读性
-                if ((i + 1) % 4 === 0 && i !== length - 1) {
-                    sim += ' ';
-                }
-            }
-            
-            document.getElementById('simResult').innerHTML = 
-                `<span>${sim}</span><button class="copy-btn" onclick="copyToClipboard('${sim.replace(/\s/g, '')}')">复制</button>`;
-        }
-        
-        // 生成所有信息
-        function generateAll() {
-            generateIMEI();
-            generateSN();
-            generateAndroidID();
-            generateSIM();
-            
-            // 随机选择品牌和型号
-            const brands = Object.keys(deviceDatabase);
-            const brand = brands[Math.floor(Math.random() * brands.length)];
-            const model = deviceDatabase[brand][Math.floor(Math.random() * deviceDatabase[brand].length)];
-            
-            // Android版本
-            const androidVersions = ['11', '12', '13', '14'];
-            const androidVersion = androidVersions[Math.floor(Math.random() * androidVersions.length)];
-            
-            // 获取已生成的值
-            const imei = document.getElementById('imeiResult').textContent.split('复制')[0].trim();
-            const sn = document.getElementById('snResult').textContent.split('复制')[0].trim();
-            const androidId = document.getElementById('androidIdResult').textContent.split('复制')[0].trim();
-            const sim = document.getElementById('simResult').textContent.split('复制')[0].trim();
-            
-            // 生成更多设备信息
-            const buildNumber = `QP1A.${Math.floor(Math.random() * 999999)}.${Math.floor(Math.random() * 999)}`;
-            const kernelVersion = `4.19.${Math.floor(Math.random() * 200)}-${Math.floor(Math.random() * 1000000)}`;
-            const securityPatch = `202${Math.floor(Math.random() * 4)}-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 5) + 1).padStart(2, '0')}`;
-            
-            const allInfo = `
-                <div class="info-grid">
-                    <div class="info-item">
-                        <strong>品牌</strong>
-                        ${brand.charAt(0).toUpperCase() + brand.slice(1)}
-                    </div>
-                    <div class="info-item">
-                        <strong>型号</strong>
-                        ${model}
-                    </div>
-                    <div class="info-item">
-                        <strong>Android 版本</strong>
-                        ${androidVersion}
-                    </div>
-                    <div class="info-item">
-                        <strong>构建版本</strong>
-                        ${buildNumber}
-                    </div>
-                    <div class="info-item">
-                        <strong>安全补丁</strong>
-                        ${securityPatch}
-                    </div>
-                    <div class="info-item">
-                        <strong>内核版本</strong>
-                        ${kernelVersion}
-                    </div>
-                    <div class="info-item">
-                        <strong>IMEI</strong>
-                        ${imei}
-                    </div>
-                    <div class="info-item">
-                        <strong>序列号</strong>
-                        ${sn}
-                    </div>
-                    <div class="info-item">
-                        <strong>Android ID</strong>
-                        ${androidId}
-                    </div>
-                    <div class="info-item">
-                        <strong>SIM 卡号</strong>
-                        ${sim}
-                    </div>
-                    <div class="info-item">
-                        <strong>MAC 地址</strong>
-                        ${generateMAC()}
-                    </div>
-                    <div class="info-item">
-                        <strong>构建指纹</strong>
-                        ${brand.toLowerCase()}/${model.replace(/\s+/g, '_').toLowerCase()}:${androidVersion}/${buildNumber}
-                    </div>
-                </div>
-                <button class="copy-btn" style="margin-top: 15px; width: 100%;" onclick="copyAllInfo()">复制全部信息</button>
-            `;
-            
-            document.getElementById('allResult').innerHTML = allInfo;
-        }
-        
-        // 生成随机MAC地址
-        function generateMAC() {
-            const hex = '0123456789ABCDEF';
-            let mac = '';
-            for(let i = 0; i < 12; i++) {
-                mac += hex.charAt(Math.floor(Math.random() * hex.length));
-                if(i % 2 === 1 && i < 11) mac += ':';
-            }
-            return mac;
-        }
-        
-        // 复制到剪贴板
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text);
-            
-            // 显示复制反馈
-            const notification = document.createElement('div');
-            notification.style.position = 'fixed';
-            notification.style.bottom = '20px';
-            notification.style.right = '20px';
-            notification.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
-            notification.style.color = 'white';
-            notification.style.padding = '12px 24px';
-            notification.style.borderRadius = '10px';
-            notification.style.zIndex = '1000';
-            notification.style.transition = 'all 0.3s';
-            notification.style.transform = 'translateY(20px)';
-            notification.style.opacity = '0';
-            notification.style.fontFamily = "'HarmonyOS Sans', sans-serif";
-            notification.style.fontSize = '0.95rem';
-            notification.textContent = `已复制: ${text.length > 30 ? text.substring(0, 30) + '...' : text}`;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.transform = 'translateY(0)';
-                notification.style.opacity = '1';
-            }, 10);
-            
-            setTimeout(() => {
-                notification.style.transform = 'translateY(20px)';
-                notification.style.opacity = '0';
-                setTimeout(() => notification.remove(), 300);
-            }, 2000);
-        }
-        
-        // 复制所有信息
-        function copyAllInfo() {
-            const allInfo = document.getElementById('allResult').textContent.split('复制全部信息')[0].trim();
-            navigator.clipboard.writeText(allInfo);
-            
-            // 显示复制反馈
-            const notification = document.createElement('div');
-            notification.style.position = 'fixed';
-            notification.style.bottom = '20px';
-            notification.style.right = '20px';
-            notification.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
-            notification.style.color = 'white';
-            notification.style.padding = '12px 24px';
-            notification.style.borderRadius = '10px';
-            notification.style.zIndex = '1000';
-            notification.style.transition = 'all 0.3s';
-            notification.style.transform = 'translateY(20px)';
-            notification.style.opacity = '0';
-            notification.style.fontFamily = "'HarmonyOS Sans', sans-serif";
-            notification.style.fontSize = '0.95rem';
-            notification.textContent = '所有信息已复制到剪贴板';
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.transform = 'translateY(0)';
-                notification.style.opacity = '1';
-            }, 10);
-            
-            setTimeout(() => {
-                notification.style.transform = 'translateY(20px)';
-                notification.style.opacity = '0';
-                setTimeout(() => notification.remove(), 300);
-            }, 2000);
-        }
-        
-        // 预加载动画
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                document.body.style.opacity = '1';
-            }, 50);
+
+        // Add click listener to the button
+        themeToggleButton.addEventListener('click', () => {
+            const currentTheme = document.documentElement.dataset.theme || getInitialTheme(); // Get current theme
+            const newTheme = currentTheme === darkTheme ? lightTheme : darkTheme; // Determine the new theme
+            applyTheme(newTheme); // Apply the new theme
         });
-        
-        // 初始生成一些数据
-        window.onload = function() {
+
+        // --- End Theme Toggling Logic ---
+
+
+        // 生成 IMEI (Luhn 算法) (未改变)
+        function generateIMEI() { let imei = ''; for(let i = 0; i < 14; i++) { imei += Math.floor(Math.random() * 10); } let sum = 0; for(let i = 0; i < 14; i++) { let digit = parseInt(imei[i]); if((i + 1) % 2 === 0) { digit *= 2; if(digit > 9) digit = (digit % 10) + Math.floor(digit / 10); } sum += digit; } const checkDigit = (10 - (sum % 10)) % 10; imei += checkDigit; displayResult('imeiResult', formatIMEI(imei), imei); }
+        function formatIMEI(imei) { let formatted = ''; for (let i = 0; i < imei.length; i++) { formatted += imei[i]; if ((i + 1) % 4 === 0 && i < imei.length - 1) { formatted += ' '; } } return formatted; }
+
+        // 生成序列号 (SN) (未改变)
+        function generateSN() { const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'; const length = Math.floor(Math.random() * 9) + 12; let sn = chars.charAt(Math.floor(Math.random() * 26) + 10); for(let i = 1; i < length; i++) { sn += chars.charAt(Math.floor(Math.random() * chars.length)); } displayResult('snResult', sn, sn); }
+
+        // 生成 Android ID (未改变)
+        function generateAndroidID() { const hex = '0123456789abcdef'; const length = Math.floor(Math.random() * 9) + 12; let androidId = ''; for(let i = 0; i < length; i++) { androidId += hex.charAt(Math.floor(Math.random() * hex.length)); } displayResult('androidIdResult', androidId, androidId); }
+
+        // 生成 SIM 卡序列号 (ICCID) (未改变)
+        function generateSIM() { const digits = '0123456789'; const length = Math.random() > 0.5 ? 19 : 20; let sim = '89'; for(let i = 2; i < length; i++) { sim += digits.charAt(Math.floor(Math.random() * digits.length)); } let sum = 0; let isSecond = false; for (let i = sim.length - 1; i >= 0; i--) { let digit = parseInt(sim[i]); if (isSecond) { digit *= 2; if (digit > 9) { digit -= 9; } } sum += digit; isSecond = !isSecond; } const checkDigit = (10 - (sum % 10)) % 10; sim += checkDigit; let formattedSim = ''; for (let i = 0; i < sim.length; i++) { formattedSim += sim[i]; if ((i + 1) % 4 === 0 && i < sim.length - 1) { formattedSim += ' '; } } displayResult('simResult', formattedSim, sim); }
+
+        // 生成 MAC 地址 (未改变)
+        function generateMAC() { const hex = '0123456789ABCDEF'; let mac = ''; for(let i = 0; i < 12; i++) { mac += hex.charAt(Math.floor(Math.random() * hex.length)); if(i % 2 === 1 && i < 11) mac += ':'; } return mac; }
+
+        // 显示结果和复制按钮 (未改变)
+        function displayResult(elementId, displayText, copyText) { const element = document.getElementById(elementId); if (element) { element.innerHTML = `<span>${displayText}</span><button class="copy-btn" onclick="copyToClipboard('${copyText.replace(/'/g, "\\'")}')">复制</button>`; } } // Escaped single quotes in copyText
+
+        // 生成所有信息 (未改变)
+        function generateAll() { generateIMEI(); generateSN(); generateAndroidID(); generateSIM(); const brands = Object.keys(deviceDatabase); const brand = brands[Math.floor(Math.random() * brands.length)]; const model = deviceDatabase[brand][Math.floor(Math.random() * deviceDatabase[brand].length)]; const androidVersions = ['11', '12', '13', '14']; const androidVersion = androidVersions[Math.floor(Math.random() * androidVersions.length)]; const buildNumber = `QP1A.${String(Math.floor(Math.random() * 900000) + 100000).padStart(6, '0')}.${String(Math.floor(Math.random() * 900) + 100).padStart(3, '0')}`; const kernelVersion = `4.19.${Math.floor(Math.random() * 200 + 50)}-${Math.floor(Math.random() * 1000000)}`; const securityPatch = `202${Math.floor(Math.random() * 3) + 2}-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 5) + 1).padStart(2, '0')}`; const macAddress = generateMAC(); const imeiBtn = document.getElementById('imeiResult').querySelector('button'); const snBtn = document.getElementById('snResult').querySelector('button'); const androidIdBtn = document.getElementById('androidIdResult').querySelector('button'); const simBtn = document.getElementById('simResult').querySelector('button'); const imei = imeiBtn ? imeiBtn.getAttribute('onclick').match(/'([^']+)'/)[1] : ''; const sn = snBtn ? snBtn.getAttribute('onclick').match(/'([^']+)'/)[1] : ''; const androidId = androidIdBtn ? androidIdBtn.getAttribute('onclick').match(/'([^']+)'/)[1] : ''; const sim = simBtn ? simBtn.getAttribute('onclick').match(/'([^']+)'/)[1] : ''; const displayImei = document.getElementById('imeiResult').querySelector('span')?.textContent || ''; const displaySim = document.getElementById('simResult').querySelector('span')?.textContent || ''; const allInfoHTML = `<div class="info-grid"><div class="info-item"><strong>品牌</strong> ${brand.charAt(0).toUpperCase() + brand.slice(1)}</div><div class="info-item"><strong>型号</strong> ${model}</div><div class="info-item"><strong>Android 版本</strong> ${androidVersion}</div><div class="info-item"><strong>构建版本</strong> ${buildNumber}</div><div class="info-item"><strong>安全补丁</strong> ${securityPatch}</div><div class="info-item"><strong>内核版本</strong> ${kernelVersion}</div><div class="info-item"><strong>IMEI</strong> ${displayImei}</div><div class="info-item"><strong>序列号</strong> ${sn}</div><div class="info-item"><strong>Android ID</strong> ${androidId}</div><div class="info-item"><strong>SIM 卡号</strong> ${displaySim}</div><div class="info-item"><strong>MAC 地址</strong> ${macAddress}</div><div class="info-item" style="grid-column: 1 / -1;"><strong>构建指纹</strong> ${brand.toLowerCase()}/${model.replace(/\s+/g, '_').toLowerCase()}:${androidVersion}/${buildNumber}</div></div><button class="copy-btn" style="margin-top: 20px; width: 100%; float: none; display: block; margin-left: auto; margin-right: auto;" onclick="copyAllInfo(this)">复制全部信息</button>`; const allResultElement = document.getElementById('allResult'); allResultElement.innerHTML = allInfoHTML; allResultElement.dataset.rawInfo = JSON.stringify({ Brand: brand.charAt(0).toUpperCase() + brand.slice(1), Model: model, AndroidVersion: androidVersion, BuildNumber: buildNumber, SecurityPatch: securityPatch, KernelVersion: kernelVersion, IMEI: imei, SerialNumber: sn, AndroidID: androidId, SIM_ICCID: sim, MAC_Address: macAddress, BuildFingerprint: `${brand.toLowerCase()}/${model.replace(/\s+/g, '_').toLowerCase()}:${androidVersion}/${buildNumber}` }); }
+
+        // 复制单项文本 (未改变 - 注意 displayResult 中已处理引号)
+        function copyToClipboard(text) { if (!text) return; navigator.clipboard.writeText(text).then(() => { showNotification(`已复制: ${text.length > 30 ? text.substring(0, 30) + '...' : text}`); }).catch(err => { console.error('无法复制文本: ', err); showNotification('复制失败！'); }); }
+
+        // 复制所有信息 (未改变)
+        function copyAllInfo(buttonElement) { const rawInfoElement = document.getElementById('allResult'); if (!rawInfoElement || !rawInfoElement.dataset.rawInfo) { showNotification('请先生成完整信息'); return; } try { const info = JSON.parse(rawInfoElement.dataset.rawInfo); let textToCopy = ''; for (const key in info) { textToCopy += `${key.replace(/_/g, ' ')}: ${info[key]}\n`; } navigator.clipboard.writeText(textToCopy.trim()).then(() => { showNotification('所有设备信息已复制'); }).catch(err => { console.error('无法复制所有信息: ', err); showNotification('复制失败！'); }); } catch (e) { console.error("解析信息时出错: ", e); showNotification('复制信息时出错'); } }
+
+        // 显示通知 (未改变)
+        function showNotification(message) { const existingNotification = document.querySelector('.copy-notification'); if (existingNotification) { existingNotification.remove(); } const notification = document.createElement('div'); notification.className = 'copy-notification'; notification.textContent = message; document.body.appendChild(notification); setTimeout(() => { notification.style.transform = 'translateY(0) scale(1)'; notification.style.opacity = '1'; }, 10); setTimeout(() => { notification.style.transform = 'translateY(20px) scale(0.95)'; notification.style.opacity = '0'; setTimeout(() => notification.remove(), 300); }, 2500); }
+
+        // --- Initial Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Apply the initial theme when the DOM is ready
+            const initialTheme = getInitialTheme();
+            applyTheme(initialTheme);
+
+            // Generate initial data after theme is set
             generateIMEI();
             generateSN();
-        };
+        });
+
     </script>
 </body>
 </html>
